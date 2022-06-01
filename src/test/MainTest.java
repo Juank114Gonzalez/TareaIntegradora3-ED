@@ -1,117 +1,215 @@
 package test;
 
-/**
- * This stage simulate
- */
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import generics.Graph;
-import generics.Vertex;
+import model.ListGraph;
+import model.MatrixGraph;
 
 class MainTest {
 
-	private Graph<String> graph1;
+	private ListGraph<String> graph;
 
-	private Graph<String> graph2;
-
-	void setupStage1() {
-		graph1 = new Graph<>("A");
+	void setupStage1l() {
+		graph = new ListGraph<>();
+		graph.addVertex("A");
 	}
 
-	void setupStage2() {
-		graph1.addVertex("B");
-		graph1.addVertex("C");
+	void setupStage2l() {
+		graph.addVertex("B");
+		graph.addVertex("C");
 	}
 
-	void setupStage3() {
-		graph1.newEdge("A", "B", 1);
+	void setupStage3l() {
+		graph.addEdge("A", "B", 1, false);
 
 	}
 
-	void setupStage4() {
-		graph1.newEdge("A", "D", 3);
+	void setupStage4l() {
+		graph.addEdge("A", "D", 3, false);
 	}
 
-	void setupStage5() {
-		graph2 = new Graph<String>("1");
-		graph2.newEdge("2", "1", 4);
-		graph2.newEdge("2", "3", 3);
-		graph2.newEdge("3", "4", 2);
-		graph2.newEdge("1", "3", -2);
-		graph2.newEdge("4", "2", -1);
+	void setupStage5l() {
+		graph = new ListGraph<String>();
+		graph.addEdge("2", "1", 4, false);
+		graph.addEdge("2", "3", 3, false);
+		graph.addEdge("3", "4", 2, false);
+		graph.addEdge("1", "3", -2, false);
+		graph.addEdge("4", "2", -1, false);
 	}
-	
-	boolean setupStage6() {
-		return graph2.BFS("1");
+
+	boolean setupStage6l() {
+		return graph.bfs("1");
 	}
-	
-	boolean setupStage7() {
-		return graph2.DFS();
+
+	boolean setupStage7l() {
+		return graph.dfs();
 	}
-	
-	Vertex<String> setupStage8() {
-		return graph2.search("1");
+
+	String setupStage8l() {
+		return graph.findVertex("1");
 	}
 
 	@Test
-	void initGraph1() {
-		setupStage1();
-		assertEquals(graph1.getVertices().get(0).getValue(), "A");
-		setupStage2();
-		assertEquals(graph1.getVertices().get(0).getValue(), "A");
-		assertEquals(graph1.getVertices().get(1).getValue(), "B");
-		assertEquals(graph1.getVertices().get(2).getValue(), "C");
-		setupStage3();
-		assertEquals(graph1.getVertices().get(0).getValue(), "A");
-		assertEquals(graph1.getVertices().get(1).getValue(), "B");
-		assertEquals(graph1.getVertices().get(2).getValue(), "C");
-		assertEquals(graph1.getEdges().get(0).getInputVertex().getValue(), "A");
-		assertEquals(graph1.getEdges().get(0).getOutputVertex().getValue(), "B");
-		setupStage4();
-		assertEquals(graph1.getVertices().get(0).getValue(), "A");
-		assertEquals(graph1.getVertices().get(1).getValue(), "B");
-		assertEquals(graph1.getVertices().get(2).getValue(), "C");
-		assertEquals(graph1.getVertices().get(3).getValue(), "D");
-		assertEquals(graph1.getEdges().get(0).getInputVertex().getValue(), "A");
-		assertEquals(graph1.getEdges().get(0).getOutputVertex().getValue(), "B");
-		assertEquals(graph1.getEdges().get(0).getWeight(), 1);
-		assertEquals(graph1.getEdges().get(1).getInputVertex().getValue(), "A");
-		assertEquals(graph1.getEdges().get(1).getOutputVertex().getValue(), "D");
-		assertEquals(graph1.getEdges().get(1).getWeight(), 3);
+	void initGraphL() {
+		setupStage1l();
+		assertEquals(graph.getListOfVertices().get(0), "A");
+
+		setupStage2l();
+		assertEquals(graph.getListOfVertices().get(0), "A");
+		assertEquals(graph.getListOfVertices().get(1), "B");
+		assertEquals(graph.getListOfVertices().get(2), "C");
+
+		setupStage3l();
+		assertEquals(graph.getListOfVertices().get(0), "A");
+		assertEquals(graph.getListOfVertices().get(1), "B");
+		assertEquals(graph.getListOfVertices().get(2), "C");
+
+		assertEquals(graph.getVertices().get("A").get(0).getVertex(), "B");
+		assertEquals(graph.getVertices().get("A").get(0).getWeight(), 1);
+
+		setupStage4l();
+		assertEquals(graph.getListOfVertices().get(0), "A");
+		assertEquals(graph.getListOfVertices().get(1), "B");
+		assertEquals(graph.getListOfVertices().get(2), "C");
+		assertEquals(graph.getListOfVertices().get(3), "D");
+
+		assertTrue(graph.getVertices().get("A").get(0).getWeight() == 1
+				&& graph.getVertices().get("A").get(0).getVertex() == "B");
+
+		assertTrue(graph.getVertices().get("A").get(1).getWeight() == 3
+				&& graph.getVertices().get("A").get(1).getVertex() == "D");
+	}
+
+	@Test
+	void initGraphL2() {
+
+		setupStage5l();
+		assertEquals(graph.getListOfVertices().get(0), "1");
+		assertEquals(graph.getListOfVertices().get(1), "2");
+		assertEquals(graph.getListOfVertices().get(2), "3");
+		assertEquals(graph.getListOfVertices().get(3), "4");
+
+		assertTrue(graph.getVertices().get("2").get(0).getWeight() == 4
+				&& graph.getVertices().get("2").get(0).getVertex() == "1");
+
+		assertTrue(graph.getVertices().get("2").get(1).getWeight() == 3
+				&& graph.getVertices().get("2").get(1).getVertex() == "3");
+
+		assertTrue(graph.getVertices().get("3").get(0).getWeight() == 2
+				&& graph.getVertices().get("3").get(0).getVertex() == "4");
+
+		assertTrue(graph.getVertices().get("1").get(0).getWeight() == -2
+				&& graph.getVertices().get("1").get(0).getVertex() == "3");
+
+		assertTrue(graph.getVertices().get("4").get(0).getWeight() == -1
+				&& graph.getVertices().get("4").get(0).getVertex() == "2");
+
+		assertTrue(setupStage6l());
+
+		assertTrue(setupStage7l());
+
+		assertEquals(setupStage8l(), "1");
 	}
 	
 	
+	
+	private MatrixGraph<String> graph2;
+
+	void setupStage1m() {
+		graph2 = new MatrixGraph<>(4);
+		graph2.addVertex("A");
+	}
+
+	void setupStage2m() {
+		graph2.addVertex("B");
+		graph2.addVertex("C");
+	}
+
+	void setupStage3m() {
+		graph2.addEdge("A", "B", 1, false);
+
+	}
+
+	void setupStage4m() {
+		graph2.addEdge("A", "D", 3, false);
+	}
+
+	void setupStage5m() {
+		graph2 = new MatrixGraph<String>(4);
+		graph2.addEdge("2", "1", 4, false);
+		graph2.addEdge("2", "3", 3, false);
+		graph2.addEdge("3", "4", 2, false);
+		graph2.addEdge("1", "3", -2, false);
+		graph2.addEdge("4", "2", -1, false);
+	}
+
+	boolean setupStage6m() {
+		return graph2.bfs("1");
+	}
+
+	boolean setupStage7m() {
+		return graph2.dfs();
+	}
+
+	String setupStage8m() {
+		return graph2.findVertex("1");
+	}
 
 	@Test
-	void initGraph2() {
-		
-		setupStage5();
-		assertEquals(graph2.getVertices().get(0).getValue(), "1");
-		assertEquals(graph2.getVertices().get(1).getValue(), "2");
-		assertEquals(graph2.getVertices().get(2).getValue(), "3");
-		assertEquals(graph2.getVertices().get(3).getValue(), "4");
-		assertEquals(graph2.getEdges().get(0).getInputVertex().getValue(), "2");
-		assertEquals(graph2.getEdges().get(0).getOutputVertex().getValue(), "1");
-		assertEquals(graph2.getEdges().get(0).getWeight(), 4);
-		assertEquals(graph2.getEdges().get(1).getInputVertex().getValue(), "2");
-		assertEquals(graph2.getEdges().get(1).getOutputVertex().getValue(), "3");
-		assertEquals(graph2.getEdges().get(1).getWeight(), 3);
-		assertEquals(graph2.getEdges().get(2).getInputVertex().getValue(), "3");
-		assertEquals(graph2.getEdges().get(2).getOutputVertex().getValue(), "4");
-		assertEquals(graph2.getEdges().get(2).getWeight(), 2);
-		assertEquals(graph2.getEdges().get(3).getInputVertex().getValue(), "1");
-		assertEquals(graph2.getEdges().get(3).getOutputVertex().getValue(), "3");
-		assertEquals(graph2.getEdges().get(3).getWeight(), -2);
-		assertEquals(graph2.getEdges().get(4).getInputVertex().getValue(), "4");
-		assertEquals(graph2.getEdges().get(4).getOutputVertex().getValue(), "2");
-		assertEquals(graph2.getEdges().get(4).getWeight(), -1);
-		//assertTrue(setupStage6());
-		//No sirven por ahora
-		//assertTrue(setupStage7());
-		assertEquals(setupStage8().getValue(), "1");
+	void initGraphM() {
+		setupStage1m();
+		assertEquals(graph2.getListOfVertices().get(0), "A");
+
+		setupStage2m();
+		assertEquals(graph2.getListOfVertices().get(0), "A");
+		assertEquals(graph2.getListOfVertices().get(1), "B");
+		assertEquals(graph2.getListOfVertices().get(2), "C");
+
+		setupStage3m();
+		assertEquals(graph2.getListOfVertices().get(0), "A");
+		assertEquals(graph2.getListOfVertices().get(1), "B");
+		assertEquals(graph2.getListOfVertices().get(2), "C");
+
+		assertTrue(graph2.hasEdge("A", "B", 1));
+
+		setupStage4m();
+		assertEquals(graph2.getListOfVertices().get(0), "A");
+		assertEquals(graph2.getListOfVertices().get(1), "B");
+		assertEquals(graph2.getListOfVertices().get(2), "C");
+		assertEquals(graph2.getListOfVertices().get(3), "D");
+
+		assertTrue(graph2.hasEdge("A", "B", 1));
+
+		assertTrue(graph2.hasEdge("A", "D", 3));
+	}
+
+	@Test
+	void initGraphM2() {
+
+		setupStage5m();
+		assertEquals(graph2.getListOfVertices().get(0), "1");
+		assertEquals(graph2.getListOfVertices().get(1), "2");
+		assertEquals(graph2.getListOfVertices().get(2), "3");
+		assertEquals(graph2.getListOfVertices().get(3), "4");
+
+		assertTrue(graph2.hasEdge("2", "1", 4));
+
+		assertTrue(graph2.hasEdge("2", "3", 3));
+
+		assertTrue(graph2.hasEdge("3", "4", 2));
+
+		assertTrue(graph2.hasEdge("1", "2",-2));
+
+		assertTrue(graph2.hasEdge("4", "2",-1));
+
+		assertTrue(setupStage6m());
+
+		assertTrue(setupStage7m());
+
+		assertEquals(setupStage8m(), "1");
 	}
 
 }

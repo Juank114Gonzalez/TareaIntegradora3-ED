@@ -15,11 +15,11 @@ public interface GraphInterface<T> {
 	 * ----------Graph implementation methods----------
 	 */
 
-	public void bfs();
+	public boolean bfs(T s);
 
-	public void dfs();
+	public boolean dfs();
 
-	public void dfsVisit();
+	public void dfsVisit(T u);
 
 	public HashMap<T, Integer> dijkstra(T src);
 
@@ -31,7 +31,9 @@ public interface GraphInterface<T> {
 
 	public void addVertex(T newVertex);
 
-	void addEdge(T source, T destination, double weight, boolean bidirectional);
+	public void addEdge(T source, T destination, double weight, boolean bidirectional);
+	
+	public T findVertex(T vertex);
 
 	public List<T> getListOfVertices();
 	

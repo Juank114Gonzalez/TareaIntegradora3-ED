@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -77,7 +78,6 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 	 * @return int, this is the number of vertices
 	 */
 	public int getVertexCount() {
-		System.out.println("The graph has " + vertices.keySet().size() + " vertices");
 		return vertices.keySet().size();
 	}
 
@@ -97,7 +97,6 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 		if (bidirection == true) {
 			count = count / 2;
 		}
-		System.out.println("The graph has " + count + " edges.");
 		return count;
 	}
 
@@ -110,10 +109,8 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 	 */
 	public boolean hasVertex(T vertex) {
 		if (vertices.containsKey(vertex)) {
-			System.out.println("The graph contains " + vertex + " as a vertex.");
 			return true;
 		} else {
-			System.out.println("The graph does not contain " + vertex + " as a vertex.");
 			return false;
 		}
 	}
@@ -128,10 +125,8 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 	 */
 	public boolean hasEdge(T source, T destination) {
 		if (vertices.get(source).contains(destination)) {
-			System.out.println("The graph has an edge between " + source + " and " + destination + ".");
 			return true;
 		} else {
-			System.out.println("The graph has no edge between " + source + " and " + destination + ".");
 			return false;
 		}
 	}
@@ -189,17 +184,10 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 				}
 			}
 		}
-		printSolution(shortestPath);
 		return shortestPath;
 	}
 
-	// A utility function to print the constructed distance array
-	private void printSolution(HashMap<T, Integer> shortestPath) {
-		System.out.println("Vertex \t\t Distance from Source");
-		for (Map.Entry<T, Integer> out : shortestPath.entrySet()) {
-			System.out.println(out.getKey() + "\t\t" + out.getValue());
-		}
-	}
+	
 
 	/**
 	 * This method finds the T adjacent vertex with the minimum incident edge
@@ -227,24 +215,6 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 		}
 
 		return minKey;
-	}
-
-	@Override
-	public void bfs() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void dfs() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void dfsVisit() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -341,6 +311,128 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 		}
 
 		return adjacency;
+	}
+
+	@Override
+	public T findVertex(T vertex) {
+		List<T> vertices = this.getListOfVertices();
+
+		for (T v : vertices) {
+			if (v.equals(vertex)) {
+				return v;
+			}
+		}
+
+		return null;
+	}
+
+	private HashMap<T, Color> color;
+	private HashMap<T, Integer> d;
+	private HashMap<T, T> pi;
+	private HashMap<T, Integer> f;
+	private int time;
+
+	@Override
+	public boolean bfs(T s) {
+		color = new HashMap<>();
+		d = new HashMap<>();
+		pi = new HashMap<>();
+
+		for (T u : this.getListOfVertices()) {
+			color.put(u, Color.WHITE);
+			d.put(u, Integer.MAX_VALUE);
+			pi.put(u, null);
+		}
+
+		color.put(s, Color.GRAY);
+		d.put(s, 0);
+		pi.put(s, null);
+
+		Queue<T> Q = new LinkedList<>();
+
+		Q.add(s);
+
+		while (!Q.isEmpty()) {
+			T u = Q.peek();
+			if (!Q.isEmpty()) {
+				Q.remove();
+			}
+			for (T v : this.getAdjacency(u)) {
+				if (color.get(v).equals(Color.WHITE)) {
+					color.put(v, Color.GRAY);
+					d.put(v, d.get(u) + 1);
+					pi.put(v, u);
+					Q.add(v);
+				}
+			}
+			color.put(u, Color.BLACK);
+		}
+
+		for (T u : this.getListOfVertices()) {
+			if (!color.get(u).equals(Color.BLACK)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean dfs() {
+		color = new HashMap<>();
+		pi = new HashMap<>();
+		d = new HashMap<>();
+		f = new HashMap<>();
+
+		for (T u : this.getListOfVertices()) {
+			color.put(u, Color.WHITE);
+			d.put(u, Integer.MAX_VALUE);
+			pi.put(u, null);
+		}
+
+		time = 0;
+
+		for (T u : this.getListOfVertices()) {
+			if (color.get(u).equals(Color.WHITE)) {
+				dfsVisit(u);
+			}
+		}
+
+		int aux = 0;
+
+		for (T u : this.getListOfVertices()) {
+			if (pi.get(u) == null) {
+				aux++;
+			}
+
+			if (aux > 1) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public void dfsVisit(T u) {
+		time += 1;
+
+		d.put(u, time);
+
+		color.put(u, Color.GRAY);
+
+		for (T v : this.getAdjacency(u)) {
+			if (color.get(v).equals(Color.WHITE)) {
+				pi.put(v, u);
+				dfsVisit(v);
+			}
+		}
+
+		color.put(u, Color.BLACK);
+
+		time += 1;
+
+		f.put(u, time);
 	}
 
 }

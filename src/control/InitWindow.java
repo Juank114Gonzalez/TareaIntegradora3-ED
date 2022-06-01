@@ -65,14 +65,16 @@ public class InitWindow {
 				AlertsCreator.loadAlert(Alert.AlertType.CONFIRMATION, "Confirmation", "Matrix of adjacency!",
 						"You´ve selected \"Matrix of adjacency\" as your type of graph");
 				Main.G = 0;
+				launchMainWindow(event);
 			} else {
 				AlertsCreator.loadAlert(Alert.AlertType.CONFIRMATION, "Confirmation", "Matrix of adjacency!",
 						"You´ve selected \"List of adjacency\" as your type of graph");
 				Main.G = 1;
+				launchMainWindow(event);
 			}
 		}
 
-		launchMainWindow(event);
+		
 	}
 
 	void launchMainWindow(ActionEvent event) {

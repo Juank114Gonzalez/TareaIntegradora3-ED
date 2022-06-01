@@ -29,7 +29,7 @@ public class ScreenA extends BaseScreen {
 	 */
 	public ScreenA(Canvas canvas) {
 		super(canvas);
-		if (Main.G == 0) {
+		if (Main.G == 1) {
 			housesGraph = new ListGraph<>();
 		} else {
 			housesGraph = new MatrixGraph<>(Main.K);
@@ -56,8 +56,7 @@ public class ScreenA extends BaseScreen {
 		randomHouses(Main.K);
 		gc.setFill(Color.BEIGE);
 		gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		// linea horizontal
-
+		
 		for (Home house : housesGraph.getListOfVertices()) {
 			house.paint();
 		}
@@ -85,7 +84,9 @@ public class ScreenA extends BaseScreen {
 			}
 		}
 		
-		beConex();
+		if(!housesGraph.bfs(housesGraph.getListOfVertices().get(0))) {
+			beConex();
+		}
 
 		for (Home sourceHouse : housesGraph.getListOfVertices()) {
 			double[] sourceCentroid = getCentroid(sourceHouse);
@@ -276,6 +277,23 @@ public class ScreenA extends BaseScreen {
 	public void onKey(KeyEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void dijkstra(String id) {
+		// TODO Auto-generated method stub
+		
+		Home home = findThehome(id);
+		
+		housesGraph.dijkstra(home);
+	}
+
+	private Home findThehome(String id) {
+		for(Home h : housesGraph.getListOfVertices()) {
+			if(h.getId().equals(id)) {
+				return h;
+			}
+		}
+		return null;
 	}
 
 }
