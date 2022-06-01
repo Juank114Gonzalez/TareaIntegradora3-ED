@@ -5,15 +5,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
-/**
- * This abstract class is the base of a screen with the methods <b>paint</b>,
- * <b>onClick</b> and <b>onKey</b>. This class will be the elements container of
- * a visual interface.
- * 
- * @author Jessica Santander
- * @author Gabriel Restrepo
- * @author Camilo Gonzalez
- */
 public abstract class BaseScreen {
 
 	protected Canvas canvas;

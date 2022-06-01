@@ -8,20 +8,15 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.Transform;
 import model.Edge;
 import model.Graph;
 import model.Home;
+import model.ListGraph;
+import model.MatrixGraph;
 import ui.Main;
 
-/**
- * This class contains all the visual elements of the video game. As the user
- * plays the video game this class keeps updating.
- * 
- * @author Jessica Santander
- * @author Gabriel Restrepo
- * @author Camilo Gonzalez
- *
- */
 public class ScreenA extends BaseScreen {
 
 	// Los objetos sobre el escenario
@@ -34,60 +29,84 @@ public class ScreenA extends BaseScreen {
 	 */
 	public ScreenA(Canvas canvas) {
 		super(canvas);
-		housesGraph = new Graph<>();
+		if (Main.G == 0) {
+			housesGraph = new ListGraph<>();
+		} else {
+			housesGraph = new MatrixGraph<>(Main.K);
+		}
+
 	}
 
 	@Override
 	public void paint() {
 		randomHouses(Main.K);
-		gc.setFill(Color.rgb(206, 225, 228));
+		gc.setFill(Color.BEIGE);
 		gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		// linea horizontal
 
-		
-
-		for (Map.Entry<Home, List<Edge<Home>>> entry : housesGraph.getVertices().entrySet()) {
-			entry.getKey().paint();
+		for (Home house : housesGraph.getListOfVertices()) {
+			house.paint();
 		}
 		paintEdges();
-		paintCentroids();
-		
-	}
 
-	private void paintCentroids() {
-		// TODO Auto-generated method stub
-		for (Map.Entry<Home, List<Edge<Home>>> source : housesGraph.getVertices().entrySet()) {
-			double[] sourceCentroid = getCentroid(source.getKey());
-			gc.fillOval(sourceCentroid[0] - 5, sourceCentroid[1] - 5, 10, 10);
-		}
 	}
 
 	private void paintEdges() {
-		gc.setStroke(Color.rgb(255, 195, 0));
+		gc.setStroke(Color.rgb(0, 0, 0));
 		gc.setFill(Color.GREEN);
 		gc.setLineWidth(1);
-		for (Map.Entry<Home, List<Edge<Home>>> source : housesGraph.getVertices().entrySet()) {
-			for (Map.Entry<Home, List<Edge<Home>>> destination : housesGraph.getVertices().entrySet()) {
-				double p = Math.random();
-				if (p > 0.95) {
-					if (!source.getKey().equals(destination.getKey())) {
-						housesGraph.addEdge(source.getKey(), destination.getKey(),
-								calculateDistance(source.getKey(), destination.getKey()), false);
+
+		for (Home sourceHouse : housesGraph.getListOfVertices()) {
+			int k = (int) (1 + Math.random() * housesGraph.getListOfVertices().size());
+			int stop = 0;
+			boolean flag = false;
+			for (Home destinationHouse : housesGraph.getListOfVertices()) {
+				if (stop == k) {
+					if (!sourceHouse.equals(destinationHouse)) {
+						housesGraph.addEdge(sourceHouse, destinationHouse,
+								calculateDistance(sourceHouse, destinationHouse), true);
 					}
 				}
+				stop++;
 			}
 		}
 
-		for (Map.Entry<Home, List<Edge<Home>>> source : housesGraph.getVertices().entrySet()) {
-			double[] sourceCentroid = getCentroid(source.getKey());
-			for(Edge<Home> e: source.getValue()) {
-				double[] destinationCentroid = getCentroid(e.getVertex());
+		for (Home sourceHouse : housesGraph.getListOfVertices()) {
+			double[] sourceCentroid = getCentroid(sourceHouse);
+			for (Home destinationHouse : housesGraph.getAdjacency(sourceHouse)) {
+				double[] destinationCentroid = getCentroid(destinationHouse);
 				gc.moveTo(sourceCentroid[0], sourceCentroid[1]);
 				gc.lineTo(destinationCentroid[0], destinationCentroid[1]);
-				gc.stroke();
+				//drawArrow(sourceCentroid[0], sourceCentroid[1], destinationCentroid[0], destinationCentroid[1]);
 			}
 		}
+		gc.stroke();
 
+	}
+	
+	/**
+	 * This method draws a line with an arrow at the end
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 */
+	private void drawArrow(double x1, double y1, double x2, double y2) {
+		gc.setFill(Color.RED);
+
+		double dx = x2 - x1, dy = y2 - y1;
+		double angle = Math.atan2(dy, dx);
+		int len = (int) Math.sqrt(dx * dx + dy * dy);
+
+		Transform transform = Transform.translate(x1, y1);
+		transform = transform.createConcatenation(Transform.rotate(Math.toDegrees(angle), 0, 0));
+		gc.setTransform(new Affine(transform));
+
+		int arrSize = 9;
+
+		gc.strokeLine(0, 0, len, 0);
+		gc.fillPolygon(new double[] { len, len - arrSize, len - arrSize, len },
+				new double[] { 0, -arrSize, arrSize, 0 }, 4);
 	}
 
 	private double[] getCentroid(Home house1) {
@@ -112,7 +131,6 @@ public class ScreenA extends BaseScreen {
 		ArrayList<Integer> columns = new ArrayList<>();
 		ArrayList<Integer> rows = new ArrayList<>();
 		int even = 0;
-		int repeat = 0;
 		do {
 			int partitions = defPartitions(rectangles);
 			rectangles = rectangles / partitions;
@@ -131,14 +149,15 @@ public class ScreenA extends BaseScreen {
 
 		for (int i = 0; i < numberOfRows; i++) {
 			for (int j = 0; j < numberOfColumns; j++) {
+
+				String id = "";
+				id = "" + ((char) (65 + i)) + ((char) (65 + j));
+
 				housesGraph.addVertex(new Home(canvas, (int) (j * (canvas.getWidth() / numberOfColumns)),
 						(int) (i * (canvas.getHeight() / numberOfRows)), (int) (canvas.getWidth() / numberOfColumns),
-						(int) (canvas.getHeight() / numberOfRows)));
+						(int) (canvas.getHeight() / numberOfRows), id));
 			}
 		}
-
-		System.out.println("columns: " + numberOfColumns);
-		System.out.println("rows: " + numberOfRows);
 	}
 
 	/**

@@ -4,11 +4,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import screens.BaseScreen;
 import screens.ScreenA;
 
@@ -17,6 +18,18 @@ public class MainWindow implements Initializable {
 	@FXML
 	private Canvas canvas;
 	private GraphicsContext gc;
+	
+	@FXML
+    private ChoiceBox<String> destinationCB;
+
+    @FXML
+    private Button sendBTN;
+
+    @FXML
+    private Button simulateADayBTN;
+
+    @FXML
+    private ChoiceBox<String> sourceCB;
 
 	public static int SCREEN = 0;
 	public static long FRAMES = 0;
@@ -38,6 +51,7 @@ public class MainWindow implements Initializable {
 		screens.get(SCREEN).paint();
 	}
 
+	@SuppressWarnings("unused")
 	private void pause(int time) {
 		try {
 			Thread.sleep(time);

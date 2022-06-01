@@ -16,7 +16,7 @@ public class Home {
 	private double x;
 	private double y;
 	private Image image;
-	private String id = "a";
+	private String id;
 
 	/**
 	 * @return the image
@@ -32,9 +32,11 @@ public class Home {
 		this.image = image;
 	}
 
-	public Home(Canvas canvas, int x, int y, int columns, int rows) {
-		// Searches for the image of the enemy
-		File file = new File("src/image/home.png");
+	public Home(Canvas canvas, int x, int y, int columns, int rows, String id) {
+		
+		this.id = id;
+		// Searches for the image of the house
+		File file = new File("src/image/home2.png");
 		try {
 			image = new Image(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
@@ -45,6 +47,8 @@ public class Home {
 		gc = canvas.getGraphicsContext2D();
 		this.x = x + (int) (1 + Math.random() * (columns-image.getWidth()));
 		this.y = y + (int) (1 + Math.random() * (rows-image.getHeight()));
+		//this.x = x;
+		//this.y = y;
 	}
 
 	/**
