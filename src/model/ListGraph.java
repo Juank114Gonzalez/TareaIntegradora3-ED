@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 
 public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
@@ -15,8 +15,12 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 	// This is the set of edges. Every vertex <T> is taken as a key. Every key
 	// contains a linked list of vertices (This will represent the adjacency list)
 	private Map<T, List<Edge<T>>> vertices = new HashMap<>();
-
-	private ListGraph<T> minimumSpanningTree = null;
+	private Graph<T> minimumSpanningTree = null;
+	private HashMap<T, Color> color;
+	private HashMap<T, Integer> d;
+	private HashMap<T, T> pi;
+	private HashMap<T, Integer> f;
+	private int time;
 
 	public ListGraph() {
 
@@ -158,12 +162,13 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 	 * @param src, T, this is the searched source
 	 */
 	@Override
-	public HashMap<T, Integer> dijkstra(T src) {
+	public List<T> dijkstra(T src, T destination) {
 		HashMap<T, Integer> shortestPath = new HashMap<>();
-
+		HashMap<T, List<T>> finalPath = new HashMap<>();
 		HashMap<T, Boolean> reached = new HashMap<>();
 
 		for (Entry<T, List<Edge<T>>> node : vertices.entrySet()) {
+			finalPath.put(node.getKey(), new LinkedList<>());
 			shortestPath.put(node.getKey(), Integer.MAX_VALUE);
 			reached.put(node.getKey(), false);
 		}
@@ -180,14 +185,38 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 				int distance = (int) (shortestPath.get(u) + edge.getWeight());
 
 				if (!reached.get(v) && shortestPath.get(u) != Integer.MAX_VALUE && distance < shortestPath.get(v)) {
+					finalPath.get(v).add(u);
 					shortestPath.put(v, distance);
 				}
 			}
 		}
-		return shortestPath;
+		ArrayList<T> path = new ArrayList<>();
+		path.add(destination);
+		return getPath(finalPath, destination, path);
 	}
 
-	
+	/**
+	 * This method gets the path of nodes from the source to the destination
+	 * 
+	 * @param finalPath,   (T, (T) List) HashMap, this map relates each node of the
+	 *                     graph with the previous nodes to reach itself
+	 * @param destination, T, this is the destination of the path
+	 * @param path,        (T) ArrayList, this list contains the set of nodes that
+	 *                     conform the path
+	 * @return
+	 */
+	private List<T> getPath(HashMap<T, List<T>> finalPath, T destination, ArrayList<T> path) {
+		if (finalPath.get(destination).size() == 0) {
+			return path;
+		}
+
+		for (int i = finalPath.get(destination).size() - 1; i >= 0; i--) {
+			path.add(finalPath.get(destination).get(i));
+		}
+
+		return getPath(finalPath, finalPath.get(destination).get(0), path);
+
+	}
 
 	/**
 	 * This method finds the T adjacent vertex with the minimum incident edge
@@ -227,57 +256,6 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 	public void kruskal() {
 		// TODO Auto-generated method stub
 
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void prim() {
-		// get minimum weight edge
-
-		Collection<List<Edge<T>>> edges = vertices.values();
-
-		ArrayList<Edge<T>> addedEdges = new ArrayList<>();
-
-		for (List<Edge<T>> le : edges) {
-			for (Edge<T> e : le) {
-				addedEdges.add(e);
-			}
-		}
-
-		Edge<T>[] aux = new Edge[addedEdges.size()];
-
-		for (int i = 0; i < addedEdges.size(); ++i) {
-			aux[i] = addedEdges.get(i);
-		}
-
-		for (int i = 0; i < addedEdges.size() - 1; ++i) {
-
-			for (int j = 0; j < addedEdges.size() - i - 1; ++j) {
-
-				if (addedEdges.get(j + 1).compareTo(addedEdges.get(j)) > 0) {
-
-					Edge<T> swap = aux[j];
-					aux[j] = aux[j + 1];
-					aux[j + 1] = swap;
-				}
-			}
-		}
-
-		addedEdges.clear();
-
-		for (int i = 0; i < addedEdges.size(); ++i) {
-			addedEdges.add(aux[i]);
-		}
-
-		minimumSpanningTree = new ListGraph<T>();
-
-		for (Edge<T> u : addedEdges) {
-			for (Edge<T> v : vertices.get(u.getVertex())) {
-				if (!minimumSpanningTree.getVertices().containsKey(u)) {
-					minimumSpanningTree.addEdge(u.getVertex(), v.getVertex(), u.getWeight(), false);
-				}
-			}
-		}
 	}
 
 	/**
@@ -325,12 +303,6 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 
 		return null;
 	}
-
-	private HashMap<T, Color> color;
-	private HashMap<T, Integer> d;
-	private HashMap<T, T> pi;
-	private HashMap<T, Integer> f;
-	private int time;
 
 	@Override
 	public boolean bfs(T s) {
@@ -434,5 +406,87 @@ public class ListGraph<T> extends Graph<T> implements GraphInterface<T> {
 
 		f.put(u, time);
 	}
+
+	/**
+	 * This method gets the minimum spanning tree
+	 * @return 
+	 */
+	@Override
+	public ListGraph<T> prim() {
+		List<T> vertices = getListOfVertices();
+		HashMap<T, T> nodeParent = new HashMap<>();
+		HashMap<T, Integer> nodeKey = new HashMap<>();
+		HashMap<T, Boolean> included = new HashMap<>();
+
+		for (T vertex : vertices) {
+			nodeKey.put(vertex, Integer.MAX_VALUE);
+			included.put(vertex, false);
+		}
+
+		nodeKey.put(getListOfVertices().get(0), 0);
+
+		nodeParent.put(getListOfVertices().get(0), null);
+
+		for (int count = 0; count < vertices.size() - 1; count++) {
+			T u = minKey(nodeKey, included);
+
+			included.put(u, true);
+
+			for (Edge<T> edge : this.vertices.get(u)) {
+				T v = edge.getVertex();
+				if (!included.get(v) && nodeKey.get(u) < nodeKey.get(v)) {
+					nodeParent.put(v, u);
+					nodeKey.put(v, nodeKey.get(u));
+				}
+			}
+		}
+			
+		ListGraph<T> MST = new ListGraph<>();
+		for (T v : getListOfVertices()) {
+			double weight = 0;
+			for (Edge<T> edge : this.vertices.get(v)) {
+				if (edge.getVertex().equals(nodeParent.get(v))) {
+					weight = edge.getWeight();
+					break;
+				}
+			}
+			if (nodeParent.get(v) != null) {
+				MST.addEdge(nodeParent.get(v), v, weight, false);
+			}
+		}
+		
+		return MST;
+	}
+	
+
+
+	/**
+	 * This method finds the T adjacent vertex with the minimum incident edge
+	 * between the source and the T vertex
+	 * 
+	 * @param (T, Integer) HashMap, distances, this is the map that relates every
+	 *            vertex T on the graph with the weight of the edge that relates it
+	 *            with the source
+	 * @param (T, Boolean) HashMap, reached, this is the map that relates every
+	 *            vertex T on the graph with a boolean that is true if the vertex
+	 *            has been reached on the dijkstra method, and it is false otherwise
+	 * @return T, minKey, this is the T adjacent vertex with the minimum incident
+	 *         edge between the source and the T vertex
+	 */
+	private T minKey(HashMap<T, Integer> keys, HashMap<T, Boolean> included) {
+		// Initialize min value
+		int min = Integer.MAX_VALUE;
+		T minKey = null;
+
+		for (Map.Entry<T, Integer> node : keys.entrySet()) {
+			if (!included.get(node.getKey()) && node.getValue() <= min) {
+				min = node.getValue();
+				minKey = node.getKey();
+			}
+		}
+
+		return minKey;
+	}
+
 
 }

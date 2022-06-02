@@ -103,11 +103,11 @@ public class MatrixGraph<T> extends Graph<T> implements GraphInterface<T> {
 	 * @return boolean, true if the graph contains the searched edge, false
 	 *         otherwise.
 	 */
-	public boolean hasEdge(T source, T destination, double weight) {
+	public boolean hasEdge(T source, T destination) {
 		int i = vertices.indexOf(source);
 		int j = vertices.indexOf(destination);
 
-		if (adjacencyMatrix[i][j] == weight) {
+		if (adjacencyMatrix[i][j] != 0) {
 			return true;
 		} else {
 			return false;
@@ -142,13 +142,14 @@ public class MatrixGraph<T> extends Graph<T> implements GraphInterface<T> {
 	 * @param src, T, this is the searched source
 	 */
 	@Override
-	public HashMap<T, Integer> dijkstra(T src) {
+	public List<T> dijkstra(T src, T destination) {
 		// TODO Auto-generated method stub
 		HashMap<T, Integer> shortestPath = new HashMap<>();
-
+		HashMap<T, List<T>> finalPath = new HashMap<>();
 		HashMap<T, Boolean> reached = new HashMap<>();
 
 		for (T node : vertices) {
+			finalPath.put(node, new LinkedList<>());
 			shortestPath.put(node, Integer.MAX_VALUE);
 			reached.put(node, false);
 		}
@@ -162,32 +163,45 @@ public class MatrixGraph<T> extends Graph<T> implements GraphInterface<T> {
 			reached.put(minDistance(shortestPath, reached), true);
 
 			for (T v : vertices) {
-
+			
 				int vIndex = vertices.indexOf(v);
 				int distance = (int) (shortestPath.get(u) + adjacencyMatrix[uIndex][vIndex]);
 				if (!reached.get(v) && adjacencyMatrix[uIndex][vIndex] != 0 && shortestPath.get(u) != Integer.MAX_VALUE
 						&& distance < shortestPath.get(v)) {
+					finalPath.get(v).add(u);
 					shortestPath.put(v, distance);
 				}
 			}
 		}
-
-		return shortestPath;
+		ArrayList<T> path = new ArrayList<>();
+		path.add(destination);
+		
+		return getPath(finalPath, destination, path);
 	}
+	
+	
+	/**
+	 * This method gets the path of nodes from the source to the destination
+	 * 
+	 * @param finalPath,   (T, (T) List) HashMap, this map relates each node of the
+	 *                     graph with the previous nodes to reach itself
+	 * @param destination, T, this is the destination of the path
+	 * @param path,        (T) ArrayList, this list contains the set of nodes that
+	 *                     conform the path
+	 * @return
+	 */
+	private List<T> getPath(HashMap<T, List<T>> finalPath, T destination, ArrayList<T> path) {
+		if (finalPath.get(destination).size() == 0) {
+			return path;
+		}
 
-	public void showAdjacencyMatrix() {
-		System.out.print("  ");
-		for (T v : vertices) {
-			System.out.print(v + "   ");
+		for (int i = finalPath.get(destination).size() - 1; i >= 0; i--) {
+			path.add(finalPath.get(destination).get(i));
 		}
-		for (int i = 0; i < vertices.size(); i++) {
-			System.out.print(vertices.get(i) + " ");
-			for (int j = 0; j < vertices.size(); j++) {
-				System.out.print(adjacencyMatrix[i][j] + " ");
-			}
-		}
+
+		return getPath(finalPath, finalPath.get(destination).get(0), path);
+
 	}
-
 
 	/**
 	 * This method finds the T adjacent vertex with the minimum incident edge
@@ -237,10 +251,81 @@ public class MatrixGraph<T> extends Graph<T> implements GraphInterface<T> {
 	}
 
 	@Override
-	public void prim() {
-		// TODO Auto-generated method stub
+	public MatrixGraph<T> prim() {
+		HashMap<T, T> nodeParent = new HashMap<>();
+		HashMap<T, Integer> nodeKey = new HashMap<>();
+		HashMap<T, Boolean> included = new HashMap<>();
+		for (T vertex : vertices) {
+			nodeKey.put(vertex, Integer.MAX_VALUE);
+			included.put(vertex, false);
+		}
 
+		nodeKey.put(vertices.get(0), 0);
+
+		nodeParent.put(vertices.get(0), null);
+
+		for (int count = 0; count < vertices.size() - 1; count++) {
+
+			T u = minKey(nodeKey, included);
+			int uIndex = vertices.indexOf(u);
+			included.put(u, true);
+
+			for (T v : vertices) {
+
+				int vIndex = vertices.indexOf(v);
+				
+				if (!included.get(v) && adjacencyMatrix[uIndex][vIndex] != 0 && nodeKey.get(u) != Integer.MAX_VALUE
+						&& adjacencyMatrix[uIndex][vIndex] < nodeKey.get(v)) {
+					nodeParent.put(v, u);
+					nodeKey.put(v, nodeKey.get(u));
+				}
+			}
+		}
+		
+		MatrixGraph<T> MST = new MatrixGraph<>(vertices.size());
+		for(int i = 0; i < vertices.size(); i++) {
+			int j = vertices.indexOf(vertices.get(i));
+			int k = vertices.indexOf(nodeParent.get(vertices.get(i)));
+			if (k >= 0 && j >= 0) {
+				MST.addEdge(nodeParent.get(vertices.get(i)), 
+						vertices.get(i),
+						adjacencyMatrix[j][k],
+						false);
+			}
+			
+		}
+		
+		return MST;
 	}
+
+	/**
+	 * This method finds the T adjacent vertex with the minimum incident edge
+	 * between the source and the T vertex
+	 * 
+	 * @param (T, Integer) HashMap, distances, this is the map that relates every
+	 *            vertex T on the graph with the weight of the edge that relates it
+	 *            with the source
+	 * @param (T, Boolean) HashMap, reached, this is the map that relates every
+	 *            vertex T on the graph with a boolean that is true if the vertex
+	 *            has been reached on the dijkstra method, and it is false otherwise
+	 * @return T, minKey, this is the T adjacent vertex with the minimum incident
+	 *         edge between the source and the T vertex
+	 */
+	private T minKey(HashMap<T, Integer> keys, HashMap<T, Boolean> included) {
+		// Initialize min value
+		int min = Integer.MAX_VALUE;
+		T minKey = null;
+
+		for (Map.Entry<T, Integer> node : keys.entrySet()) {
+			if (!included.get(node.getKey()) && node.getValue() <= min) {
+				min = node.getValue();
+				minKey = node.getKey();
+			}
+		}
+
+		return minKey;
+	}
+
 
 	/**
 	 * This method gets the list of the vertices
@@ -264,15 +349,16 @@ public class MatrixGraph<T> extends Graph<T> implements GraphInterface<T> {
 	public List<T> getAdjacency(T source) {
 		// TODO Auto-generated method stub
 		int i = vertices.indexOf(source);
-		ArrayList<T> adjacencyList = new ArrayList<>();
+		ArrayList<T> adjacencyList  = new ArrayList<>();
 		for (int j = 0; j < adjacencyMatrix[i].length; j++) {
-			if (adjacencyMatrix[i][j] != 0) {
+			if(adjacencyMatrix[i][j] != 0) {
 				adjacencyList.add(vertices.get(j));
 			}
 		}
 		return adjacencyList;
 	}
-
+	
+	
 	@Override
 	public T findVertex(T vertex) {
 		List<T> vertices = this.getListOfVertices();
@@ -398,4 +484,5 @@ public class MatrixGraph<T> extends Graph<T> implements GraphInterface<T> {
 		
 		f.put(u, time);
 	}
+
 }

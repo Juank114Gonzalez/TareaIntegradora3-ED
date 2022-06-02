@@ -21,13 +21,13 @@ public interface GraphInterface<T> {
 
 	public void dfsVisit(T u);
 
-	public HashMap<T, Integer> dijkstra(T src);
+	public List<T> dijkstra(T src, T destination);
 
 	public void floydWarshall();
 
 	public void kruskal();
 
-	public void prim();
+	public Graph<T> prim();
 
 	public void addVertex(T newVertex);
 
@@ -38,5 +38,6 @@ public interface GraphInterface<T> {
 	public List<T> getListOfVertices();
 	
 	public List<T> getAdjacency(T source);
+
 
 }

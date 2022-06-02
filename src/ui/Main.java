@@ -1,5 +1,6 @@
 package ui;
 
+import java.util.List;
 import java.util.Scanner;
 
 import javafx.application.Application;
@@ -7,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import model.Home;
 import screens.ScreenA;
 
 public class Main extends Application {
@@ -14,7 +16,8 @@ public class Main extends Application {
 	public static int G;
 	public static int K;
 	public static ScreenA screenA;
-
+	public static List<Home> homes;
+	
 	/**
 	 * This is the main class of the program, it will ask the user for the number of
 	 * enemies that the program will generate.

@@ -15,7 +15,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import model.Home;
-import screens.BaseScreen;
 import screens.ScreenA;
 
 public class MainWindow implements Initializable {
@@ -70,7 +69,7 @@ public class MainWindow implements Initializable {
 
 	@FXML
 	void send(ActionEvent event) {
-		if (sourceCB.getValue() == (null) && (destinationCB.getValue() == (null))) {
+		if (sourceCB.getValue() == null && (destinationCB.getValue() == null)) {
 			AlertsCreator.loadAlert(Alert.AlertType.ERROR, "Error!", "Sorurce and destination doesn't choiced!",
 					"You must select the sourche and destination place!");
 		} else if (sourceCB.getValue() == (null)) {
@@ -79,17 +78,21 @@ public class MainWindow implements Initializable {
 		} else if (destinationCB.getValue() == (null)) {
 			AlertsCreator.loadAlert(Alert.AlertType.ERROR, "Error!", "Destination doesn't choiced!",
 					"You must select the destination place!");
-		} else if (sourceCB.getValue() == (destinationCB.getValue())) {
+		} else if (sourceCB.getValue().equals(destinationCB.getValue())) {
 			AlertsCreator.loadAlert(Alert.AlertType.ERROR, "Error!", "You alredy are in the destination place!",
 					"Try choosing a source and a destination that are not the same as each other!");
-		}else {
-			screens.get(0).dijkstra(sourceCB.getValue());
+		} else {
+			screens.get(0).dijkstra(sourceCB.getValue(), destinationCB.getValue());
+			AlertsCreator.loadAlert(Alert.AlertType.CONFIRMATION, "Confirmation!", "The tour has ended!",
+	                "The total distance traveled is: "+ screens.get(0).getTotalDistance(sourceCB.getValue(), destinationCB.getValue()) + " mts");
 		}
 	}
 
 	@FXML
 	void simulateADay(ActionEvent event) {
-
+		screens.get(0).prim();
+		AlertsCreator.loadAlert(Alert.AlertType.CONFIRMATION, "Confirmation!", "The tour has ended!",
+                "The total distance traveled is: "+ screens.get(0).getTotalDistance() + " mts");
 	}
 
 }

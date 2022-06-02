@@ -19,20 +19,6 @@ public class Home {
 	private String id;
 
 	/**
-	 * @return the id
-	 */
-	public String getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	/**
 	 * @return the image
 	 */
 	public Image getImage() {
@@ -61,6 +47,7 @@ public class Home {
 		gc = canvas.getGraphicsContext2D();
 		this.x = x + (int) (1 + Math.random() * (columns-image.getWidth()));
 		this.y = y + (int) (1 + Math.random() * (rows-image.getHeight()));
+		gc.strokeOval(x, y, image.getWidth(), image.getHeight());
 		//this.x = x;
 		//this.y = y;
 	}
@@ -106,5 +93,21 @@ public class Home {
 	public void setY(double y) {
 		this.y = y;
 	}
+
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	
 
 }
