@@ -150,8 +150,14 @@ public class ScreenA extends BaseScreen {
 	 * @param x2
 	 * @param y2
 	 */
-	private void drawArrow(double x1, double y1, double x2, double y2) {
+	private void drawArrow(double x1, double y1, double x2, double y2, int dORp) {
 		gc.setFill(Color.RED);
+		if(dORp==0) {
+			gc.setStroke(Color.BLUEVIOLET);
+		}else{
+			gc.setStroke(Color.DARKBLUE);
+		}
+		
 
 		double dx = x2 - x1, dy = y2 - y1;
 		double angle = Math.atan2(dy, dx);
@@ -314,7 +320,7 @@ public class ScreenA extends BaseScreen {
 			double[] sourceCentroid = getCentroid(source);
 			for (Home destination : prim.getAdjacency(source)) {
 				double[] destinationCentroid = getCentroid(destination);
-				drawArrow(sourceCentroid[0], sourceCentroid[1], destinationCentroid[0], destinationCentroid[1]);
+				drawArrow(sourceCentroid[0], sourceCentroid[1], destinationCentroid[0], destinationCentroid[1], 0);
 			}
 		}
 	}
@@ -327,10 +333,25 @@ public class ScreenA extends BaseScreen {
 	 */
 	private void paintDijkstra(List<Home> path) {
 		for (int i = path.size() - 1; i >= 0; i--) {
+			
 			if ((i - 1) >= 0) {
 				double[] srcCentroid = getCentroid(path.get(i));
+				if (i == path.size() - 1) {
+					double x = path.get(i).getX();
+					double y = path.get(i).getY();
+					double wAndH = path.get(i).getImage().getHeight();
+					gc.setStroke(Color.CHARTREUSE);
+					gc.strokeOval(x - 10, y - 10, wAndH + 20, wAndH + 20);
+				}
+
+				double x = path.get(0).getX();
+				double y = path.get(0).getY();
+				double wAndH = path.get(0).getImage().getHeight();
+				gc.setStroke(Color.CORAL);
+				gc.strokeOval(x - 10, y - 10, wAndH + 20, wAndH + 20);
+
 				double[] dstCentroid = getCentroid(path.get(i - 1));
-				drawArrow(srcCentroid[0], srcCentroid[1], dstCentroid[0], dstCentroid[1]);
+				drawArrow(srcCentroid[0], srcCentroid[1], dstCentroid[0], dstCentroid[1], 1);
 			}
 
 		}
@@ -395,7 +416,7 @@ public class ScreenA extends BaseScreen {
 		for (int i = 1; i < dijkstra.size(); i++) {
 			totalDistance += calculateDistance(dijkstra.get(i - 1), dijkstra.get(i));
 		}
-		return Math. round(totalDistance*100.0)/100.0;
+		return Math.round(totalDistance * 100.0) / 100.0;
 	}
 
 	public double getTotalDistance() {
@@ -408,13 +429,13 @@ public class ScreenA extends BaseScreen {
 			prim = new MatrixGraph<>(Main.K);
 		}
 		prim = housesGraph.prim();
-		
+
 		for (Home source : prim.getListOfVertices()) {
 			for (Home destination : prim.getAdjacency(source)) {
 				totalDistance += calculateDistance(source, destination);
 			}
 		}
-		return Math. round(totalDistance*100.0)/100.0;
+		return Math.round(totalDistance * 100.0) / 100.0;
 	}
 
 }
